@@ -17,6 +17,13 @@ const METER_SEGMENTS = 16;
 export function RoomEnergyHeader({ peopleOnline, teamEnergy, mood, loudestColor }: RoomEnergyHeaderProps) {
   const blink = useRef(new Animated.Value(1)).current;
   const breathe = useRef(new Animated.Value(1)).current;
+  // Punchier one-shot animations that fire whenever the loudest colour
+  // itself changes (the leaderboard flips to a new colour), on top of the
+  // continuous idle breathe above — a fade + bouncy pop instead of the
+  // badge just snapping to a new colour.
+  const loudestFade = useRef(new Animated.Value(1)).current;
+  const loudestPop = useRef(new Animated.Value(1)).current;
+  const prevLoudestHex = useRef<string | null>(null);
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -49,6 +56,29 @@ export function RoomEnergyHeader({ peopleOnline, teamEnergy, mood, loudestColor 
     loop.start();
     return () => loop.stop();
   }, [breathe]);
+
+  useEffect(() => {
+    if (!loudestColor) return;
+    const isFirstRender = prevLoudestHex.current === null;
+    const changed = prevLoudestHex.current !== loudestColor.hex;
+    prevLoudestHex.current = loudestColor.hex;
+    if (isFirstRender || !changed) return;
+
+    loudestFade.setValue(0);
+    loudestPop.setValue(0.8);
+    Animated.timing(loudestFade, {
+      toValue: 1,
+      duration: 380,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+    Animated.spring(loudestPop, {
+      toValue: 1,
+      friction: 5,
+      tension: 140,
+      useNativeDriver: true,
+    }).start();
+  }, [loudestColor, loudestFade, loudestPop]);
 
   const lit = Math.round((teamEnergy / 5) * METER_SEGMENTS);
 
@@ -90,7 +120,11 @@ export function RoomEnergyHeader({ peopleOnline, teamEnergy, mood, loudestColor 
           <Animated.View
             style={[
               styles.loudestBadge,
-              { backgroundColor: loudestColor.hex, transform: [{ scale: breathe }] },
+              {
+                backgroundColor: loudestColor.hex,
+                opacity: loudestFade,
+                transform: [{ scale: Animated.multiply(breathe, loudestPop) }],
+              },
             ]}
           >
             <Text style={styles.loudestEmoji}>{loudestColor.emoji}</Text>
