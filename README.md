@@ -74,4 +74,4 @@ Backend lives at the repo root as Vercel serverless functions (`api/*.ts`) built
 
 ## Status
 
-🚧 Backend implemented (`api/`, `prisma/`, `lib/`) — SwiftUI app and Vercel deploy still to do.
+🚧 Backend implemented (`api/`, `prisma/`, `lib/`) and Vercel project connected for auto-deploy on push — React Native app and a real Postgres instance still to do.
