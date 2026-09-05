@@ -35,35 +35,23 @@ colour, and hype leaders.
 
 ## What's left
 
-**Needs verification before demoing:** every route on
-`https://marholmen-lag-2.vercel.app` — the app root and `/api/*` alike — is
-currently returning a Vercel bot/DDoS "Security Checkpoint" JS-challenge page
-(HTTP 403) to non-browser requests (`curl`, `WebFetch`), even with a real
-browser user-agent. This is separate from the Deployment Protection/SSO gate
-already turned off. A real human browser may solve this transparently on
-page load, but that hasn't been confirmed — someone needs to open the URL in
-an actual browser, confirm the app loads (not a checkpoint), and post a vibe
-to confirm `/api/*` calls succeed from inside it. If a checkpoint/CAPTCHA
-shows up for real visitors too, check the Vercel dashboard's
-Firewall/Security settings for an attack-challenge toggle beyond Deployment
-Protection.
+**Nothing blocking — confirmed live.** `https://marholmen-lag-2.vercel.app`
+now returns 200 on `/`, `/api/options`, and `/api/pulse`; the earlier bot
+"Security Checkpoint" 403 was a stale deploy and cleared once the unified
+build was pushed to production. `/api/pulse` shows real vibes already
+posted by teammates (energy, mood, colour board, hype leaders all
+recomputing correctly), so the whole path — design → contract → backend →
+app, all sharing one live URL — is verified working end to end. The earlier
+duplicate `vibe-check-web` Vercel project is also resolved: left in place
+(not worth touching mid-event) but nothing links to it, so
+`marholmen-lag-2.vercel.app` is the one URL to use.
 
-**Also needs cleanup:** two people wired up the app's web deploy in parallel,
-producing two different Vercel projects. The one that matters is the
-same-origin build folded into the main project above (`marholmen-lag-2`,
-`EXPO_PUBLIC_API_BASE_URL=/api`). A second, separate project
-(`vibe-check-web`, rooted at `app/` via `app/vercel.json`) was set up
-pointing at the full cross-origin backend URL *without* the `/api` prefix —
-its API calls 404, which the browser reports as a CORS failure. It's
-superseded and should be **torn down** (or at minimum not shared/linked
-anywhere) so nobody hits that broken URL by mistake during the demo.
-
-Otherwise nothing blocking — design, contract, backend (deployed, real
-Postgres), and the app (deployed, both as the live web app and available via
-Expo Go for local dev) are all built and were verified pre-deploy. Nice-to-haves
-if there's time: mirror the compose sheet's chosen emoji on the "drop your
-vibe" button (currently fixed), and consider a TTL on old vibes so the wall
-doesn't grow unbounded over a long event.
+Nice-to-haves if there's time: mirror the compose sheet's chosen emoji on
+the "drop your vibe" button (currently fixed), consider a TTL on old vibes
+so the wall doesn't grow unbounded over a long event, and one teammate
+posted a vibe with a color (`#AABBCC`) outside the fixed palette — harmless
+(just doesn't count toward the colour board), but worth validating
+server-side against `/options`' palette if there's time.
 
 ## Learnings
 
@@ -83,12 +71,12 @@ doesn't grow unbounded over a long event.
   ("must not recursively invoke itself") — that's the Vercel CLI's own
   guard, not a bug; testing had to hit the compiled endpoints directly
   instead. A human running it interactively should be unaffected.
-- **"Deployment Protection" and Vercel's bot/DDoS challenge are two separate
-  gates** — turning off the former (done early on) didn't stop a JS
-  "Security Checkpoint" challenge from appearing on every route in
-  production. Automated checks (`curl`, `WebFetch`) can't tell you whether a
-  real browser sails through it or not — always confirm production URLs in
-  an actual browser before assuming a deploy is demo-ready.
+- **Vercel's Git integration silently didn't auto-deploy on push for two
+  pushes in a row** — the production URL kept serving a stale build (which
+  is likely why it showed a bot-challenge page rather than the real app) until
+  someone ran `vercel deploy --prod` manually. Don't assume "pushed to main"
+  means "live" — check the actual deployed URL after pushing, and manually
+  trigger a deploy if it looks stale.
 - **Two people deployed the app's web build in parallel without realizing
   it** — one folded it into the existing backend project (same-origin,
   correct), one stood up a separate cross-origin project (wrong base URL,
