@@ -1,0 +1,12 @@
+# If you unzip a design export at the repo root to look at it, don't commit
+# the loose extracted copy — the canonical extracted version lives (tracked)
+# under design/<name>/, e.g. design/vibe-check/.
+/*.dc.html
+/_ds/
+
+# Common cruft
+.DS_Store
+node_modules/
+dist/
+build/
+.env

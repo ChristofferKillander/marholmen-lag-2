@@ -4,7 +4,16 @@ Team 2's project, built during the Marholmen conference.
 
 ## What is this?
 
-_TBD — add a short description once the team has picked what to build._
+**Vibe Check** — a live "room energy" board for the conference. People post their vibe (a colour, a face, one line — "how are you, really?") and the board aggregates it live: a team/room energy meter, loudest colour, hype leaders.
+
+Initial design work (Claude Design canvas export, Modernist design system, iOS frame) lives under `design/vibe-check/` — open `Vibe Check v2.dc.html` (the current iteration) in a browser to view it. A first pass at the API is in `api/vibe-check.openapi.yaml`.
+
+## Weekend project
+
+This is a throwaway weekend hackathon project, not production software. To keep four people moving in parallel without friction:
+
+- **Push straight to `main`.** No branches/PRs needed — this is a low-stakes, short-lived repo.
+- **Pull often.** Since everyone commits directly to `main`, pull frequently to stay in sync and avoid conflicts.
 
 ## Team
 
