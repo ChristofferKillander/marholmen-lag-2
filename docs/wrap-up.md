@@ -13,20 +13,23 @@ colour, and hype leaders.
 - **Backend** built straight from the spec: Vercel serverless functions +
   Prisma/PostgreSQL (`api/`, `lib/`, `prisma/`) — smoke-tested end-to-end
   against a local Postgres (all three endpoints, validation, `/pulse`
-  recompute all confirmed working), but not yet deployed with a real
-  production database.
+  recompute all confirmed working), then deployed for real (see below).
 - **App**: Expo/React Native client (`app/`) ported 1:1 from the design, built
   against an in-memory mock so it was demoable immediately. Switching to the
   real backend is a single env var (`EXPO_PUBLIC_API_BASE_URL`) — no code
   changes needed.
-- **Vercel project** linked for auto-deploy on push to `main`.
+- **Vercel project** linked for auto-deploy on push to `main`, Deployment
+  Protection turned off (public preview/prod URLs — fine for a weekend
+  project), Neon Postgres provisioned via the Vercel integration, schema
+  pushed, and the backend deployed to **production**:
+  `https://marholmen-lag-2.vercel.app` (all three endpoints verified live
+  against the real database).
 
 ## What's left
 
-Provision a real (production) Postgres instance, set `DATABASE_URL` on
-Vercel and deploy the backend, then point the app at it. Everything else
-(design, contract, backend logic, app, deploy pipeline) is done and verified
-locally.
+Point the app at the real backend: set `EXPO_PUBLIC_API_BASE_URL=https://marholmen-lag-2.vercel.app`
+wherever the app is run/built (see `app/.env.example`). Everything else
+(design, contract, backend logic + deploy, app) is done and verified.
 
 ## Learnings
 
