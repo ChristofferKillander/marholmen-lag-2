@@ -24,11 +24,27 @@ This is a throwaway weekend hackathon project, not production software. To keep 
 | Linda Storgård | |
 | Mattias Norling | |
 
+## How we're running this
+
+A loose guideline for the day, not a strict order — steps can overlap or loop back:
+
+1. **The idea** — what the app should do.
+2. **Design prompt** → design in Claude Design.
+3. **OpenAPI spec** — the design becomes a contract.
+4. **Backend** built directly from the spec.
+5. **Prisma + database** — persistent data.
+6. **The app** — SwiftUI against the design and spec.
+7. **Deploy to Vercel** — and debugging.
+8. **Wrap-up** — how we collaborated.
+
 ## Tech Stack
 
 - **Design:** Claude Design
 - **API:** OpenAPI spec
+- **Backend:** built from the OpenAPI spec, deployed to Vercel
+- **ORM:** Prisma
 - **Database:** PostgreSQL
+- **App:** SwiftUI
 - _More to be added as decisions are made._
 
 ## For AI agents working in this repo
