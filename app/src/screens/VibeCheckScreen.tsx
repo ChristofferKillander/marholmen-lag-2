@@ -6,6 +6,7 @@ import { api } from '../api';
 import type { VibeCreate } from '../api/types';
 import { ComposeSheet } from '../components/ComposeSheet';
 import { ConfettiBurst, type ConfettiTrigger } from '../components/ConfettiBurst';
+import { PlasmaBackground } from '../components/PlasmaBackground';
 import { PulseView } from '../components/PulseView';
 import { RoomEnergyHeader } from '../components/RoomEnergyHeader';
 import { Tabs, type TabKey } from '../components/Tabs';
@@ -59,6 +60,7 @@ export function VibeCheckScreen() {
         end={{ x: 0.8, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
+      <PlasmaBackground />
 
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         <RoomEnergyHeader
@@ -109,6 +111,7 @@ export function VibeCheckScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    overflow: 'hidden',
     backgroundColor: colors.bg,
   },
   safe: {
