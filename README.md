@@ -41,7 +41,7 @@ A loose guideline for the day, not a strict order — steps can overlap or loop 
 
 - **Design:** Claude Design
 - **API:** OpenAPI spec
-- **Backend:** built from the OpenAPI spec, deployed to Vercel
+- **Backend:** Vercel serverless functions (TypeScript, `api/*.ts`), built from the OpenAPI spec
 - **ORM:** Prisma
 - **Database:** PostgreSQL
 - **App:** SwiftUI
@@ -65,8 +65,13 @@ Guidelines for any agent picking up work here:
 
 ## Getting Started
 
-_TBD — setup instructions will go here once the project scaffolding exists._
+Backend lives at the repo root as Vercel serverless functions (`api/*.ts`) built directly from `api/vibe-check.openapi.yaml`, using Prisma against PostgreSQL.
+
+1. `npm install`
+2. Copy `.env.example` to `.env` and point `DATABASE_URL` at a Postgres instance (the comment in that file has a one-line `docker run` for a local one).
+3. `npx prisma db push` — creates the `Vibe` table from `prisma/schema.prisma`.
+4. `npx vercel dev` — serves `GET/POST /api/vibes`, `GET /api/pulse`, `GET /api/options` locally.
 
 ## Status
 
-🚧 Just kicked off — nothing built yet.
+🚧 Backend implemented (`api/`, `prisma/`, `lib/`) — SwiftUI app and Vercel deploy still to do.
