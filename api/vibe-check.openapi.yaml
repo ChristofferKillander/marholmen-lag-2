@@ -1,0 +1,354 @@
+openapi: 3.1.0
+info:
+  title: Vibe Check API
+  version: 1.0.0
+  description: >
+    Backend for the "Vibe Check" hackathon room-mood board
+    (design: `design/vibe-check/Vibe Check v2.dc.html`).
+
+    Teammates post a "vibe" — a name, an emoji, a one-line status, a colour,
+    and an energy level (1-5). The app shows those as:
+
+    - **the wall** — a scrolling grid of vibe cards, newest first, plus a
+      marquee ticker of recent posts.
+    - **pulse** — room-level aggregates: average team energy / mood, a
+      leaderboard of the most-picked colours, and the top 4 highest-energy
+      "hype leaders".
+
+    This spec covers the REST surface needed to hydrate and drive that UI.
+    Live updates (new vibes appearing without a manual refresh) are modeled
+    here as polling (`GET /vibes?since=`); swap for SSE/WebSockets later if
+    needed — the design's own "simulate live" behaviour is a client-side
+    stand-in for that feed.
+servers:
+  - url: https://api.vibecheck.example/v1
+    description: Placeholder — update once a real deployment exists.
+
+tags:
+  - name: vibes
+    description: Posting and reading room vibes (the wall + ticker).
+  - name: pulse
+    description: Aggregated room stats (energy, mood, colour board, hype leaders).
+  - name: options
+    description: Static choices offered in the "drop your vibe" compose sheet.
+
+paths:
+  /vibes:
+    get:
+      operationId: listVibes
+      tags: [vibes]
+      summary: List recent vibes (the wall)
+      description: >
+        Returns vibes newest-first. Used to render the wall grid and the
+        bottom ticker (typically the first 6-8 results).
+      parameters:
+        - name: limit
+          in: query
+          description: Max number of vibes to return.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 40
+        - name: since
+          in: query
+          description: >
+            Only return vibes posted after this timestamp. Poll with the
+            newest `createdAt` you already have to pick up new posts.
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: A page of vibes, newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [vibes]
+                properties:
+                  vibes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Vibe"
+              examples:
+                default:
+                  value:
+                    vibes:
+                      - id: "s0"
+                        name: "Aylin"
+                        emoji: "🚀"
+                        status: "websocket sync is ALIVE"
+                        color: "#c4ff3d"
+                        energy: 5
+                        createdAt: "2026-09-05T11:20:00Z"
+    post:
+      operationId: postVibe
+      tags: [vibes]
+      summary: Drop a vibe
+      description: >
+        Creates a new vibe from the compose sheet ("how are you, really?").
+        Triggers a confetti burst client-side in the design; the server only
+        needs to persist and return the created record.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VibeCreate"
+            examples:
+              default:
+                value:
+                  name: "you"
+                  emoji: "🔥"
+                  status: "shipping the last card"
+                  color: "#ff52d9"
+                  energy: 4
+      responses:
+        "201":
+          description: Vibe created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vibe"
+        "400":
+          description: Missing or invalid fields (e.g. blank status).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /pulse:
+    get:
+      operationId: getPulse
+      tags: [pulse]
+      summary: Room-level aggregates
+      description: >
+        Powers the "ROOM ENERGY" header chip, the "loudest colour" badge,
+        and the "pulse" tab (colour board + hype leaders). Computed from all
+        currently-live vibes.
+      responses:
+        "200":
+          description: Current room pulse.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pulse"
+              examples:
+                default:
+                  value:
+                    peopleOnline: 8
+                    teamEnergy: 3.9
+                    mood: "cooking"
+                    loudestColor:
+                      hex: "#c4ff3d"
+                      name: "ACID LIME"
+                      emoji: "🍋"
+                      count: 3
+                    colorBoard:
+                      - hex: "#c4ff3d"
+                        name: "ACID LIME"
+                        emoji: "🍋"
+                        count: 3
+                      - hex: "#ff52d9"
+                        name: "HYPER PINK"
+                        emoji: "🪩"
+                        count: 2
+                    hypeLeaders:
+                      - id: "s0"
+                        name: "Aylin"
+                        emoji: "🚀"
+                        status: "websocket sync is ALIVE"
+                        color: "#c4ff3d"
+                        energy: 5
+                        createdAt: "2026-09-05T11:20:00Z"
+
+  /options:
+    get:
+      operationId: getComposeOptions
+      tags: [options]
+      summary: Compose-sheet choices
+      description: >
+        The fixed palette, emoji set, and energy scale offered when a
+        teammate drops a vibe. Static per deployment; exposed via API so the
+        client doesn't need to hardcode them.
+      responses:
+        "200":
+          description: Available compose options.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComposeOptions"
+              examples:
+                default:
+                  value:
+                    colors:
+                      - hex: "#c4ff3d"
+                        name: "ACID LIME"
+                        emoji: "🍋"
+                      - hex: "#ff52d9"
+                        name: "HYPER PINK"
+                        emoji: "🪩"
+                    emojis: ["🔥", "⚡", "🫠", "👾", "🧠", "🪩", "🍄", "🌀"]
+                    energyLevels: [1, 2, 3, 4, 5]
+                    moods: ["horizontal", "recovering", "cruising", "cooking", "unhinged"]
+
+components:
+  schemas:
+    Vibe:
+      type: object
+      required: [id, name, emoji, status, color, energy, createdAt]
+      properties:
+        id:
+          type: string
+          description: Stable identifier for the vibe post.
+          example: "u1757070000000"
+        name:
+          type: string
+          description: Display name of the poster. Defaults to "you" if left blank.
+          maxLength: 40
+          example: "Aylin"
+        emoji:
+          type: string
+          description: Single emoji chosen as the poster's "face".
+          example: "🚀"
+        status:
+          type: string
+          description: One-line status message.
+          minLength: 1
+          maxLength: 140
+          example: "websocket sync is ALIVE"
+        color:
+          type: string
+          description: Hex colour chosen from the fixed palette (see `/options`).
+          pattern: "^#[0-9a-fA-F]{6}$"
+          example: "#c4ff3d"
+        energy:
+          type: integer
+          description: Self-reported energy level.
+          minimum: 1
+          maximum: 5
+          example: 5
+        createdAt:
+          type: string
+          format: date-time
+          description: When the vibe was posted. Drives the "now / Nm / Nh" age label.
+
+    VibeCreate:
+      type: object
+      required: [status, color, energy]
+      properties:
+        name:
+          type: string
+          maxLength: 40
+          default: "you"
+        emoji:
+          type: string
+          default: "🔥"
+        status:
+          type: string
+          minLength: 1
+          maxLength: 140
+        color:
+          type: string
+          pattern: "^#[0-9a-fA-F]{6}$"
+        energy:
+          type: integer
+          minimum: 1
+          maximum: 5
+
+    ColorBoardEntry:
+      type: object
+      required: [hex, name, emoji, count]
+      properties:
+        hex:
+          type: string
+          pattern: "^#[0-9a-fA-F]{6}$"
+        name:
+          type: string
+          example: "ACID LIME"
+        emoji:
+          type: string
+          example: "🍋"
+        count:
+          type: integer
+          minimum: 0
+          description: Number of live vibes currently using this colour.
+
+    Pulse:
+      type: object
+      required: [peopleOnline, teamEnergy, mood, colorBoard, hypeLeaders]
+      properties:
+        peopleOnline:
+          type: integer
+          minimum: 0
+          description: Distinct poster names among live vibes.
+        teamEnergy:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+          description: Average energy across all live vibes, one decimal place.
+          example: 3.9
+        mood:
+          type: string
+          description: Label mapped from `teamEnergy` (rounded 1-5).
+          enum: [horizontal, recovering, cruising, cooking, unhinged]
+        loudestColor:
+          allOf:
+            - $ref: "#/components/schemas/ColorBoardEntry"
+          description: The colour with the highest count — shown as the header badge.
+        colorBoard:
+          type: array
+          description: Palette ranked by count, descending (zero-count colours omitted).
+          items:
+            $ref: "#/components/schemas/ColorBoardEntry"
+        hypeLeaders:
+          type: array
+          description: Top vibes sorted by energy desc, then recency desc.
+          maxItems: 4
+          items:
+            $ref: "#/components/schemas/Vibe"
+
+    ComposeOptions:
+      type: object
+      required: [colors, emojis, energyLevels, moods]
+      properties:
+        colors:
+          type: array
+          items:
+            type: object
+            required: [hex, name, emoji]
+            properties:
+              hex:
+                type: string
+                pattern: "^#[0-9a-fA-F]{6}$"
+              name:
+                type: string
+              emoji:
+                type: string
+        emojis:
+          type: array
+          items:
+            type: string
+          description: Emoji options for the "YOUR FACE" picker.
+        energyLevels:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+            maximum: 5
+          description: Always [1,2,3,4,5]; exposed for completeness.
+        moods:
+          type: array
+          items:
+            type: string
+          description: Ordered mood labels indexed by rounded average energy (1-5).
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: "status is required"

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-755be6bd-1993-4819-83f1-b6649a0107a3/styles.css">
+<script src="_ds/modernist-755be6bd-1993-4819-83f1-b6649a0107a3/_ds_bundle.js"></script>
+<style>
+  html, body { margin: 0; background: var(--color-bg); }
+  @keyframes vc-pop { from { transform: scale(.9) translateY(10px); opacity: 0 } to { transform: none; opacity: 1 } }
+  @keyframes vc-float { 0%,100% { transform: translateY(0) rotate(-3deg) } 50% { transform: translateY(-6px) rotate(3deg) } }
+  @keyframes vc-blink { 50% { opacity: .2 } }
+  @keyframes vc-fall { to { transform: translateY(105vh) rotate(900deg); opacity: .85 } }
+  @keyframes vc-mar { to { transform: translateX(-50%) } }
+  a { color: var(--color-accent-700); text-decoration: none }
+  a:hover { color: var(--color-accent-600); text-decoration: underline }
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;height:100vh;min-height:640px;overflow:hidden;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+
+  <header style="display:flex;flex-wrap:wrap;align-items:stretch;border-bottom:2px solid var(--color-text);flex:none">
+    <div style="padding:var(--space-4) var(--space-6);border-right:2px solid var(--color-text);display:flex;flex-direction:column;gap:2px;min-width:260px">
+      <div style="font-family:var(--font-heading);font-weight:800;font-size:26px;letter-spacing:-.03em;line-height:1">VIBE CHECK</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--color-neutral-700)">LIVE MOOD BOARD — HACKATHON</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:var(--space-2);padding:0 var(--space-4);border-right:2px solid var(--color-text)">
+      <span style="width:10px;height:10px;background:var(--color-accent);animation:vc-blink 1.1s infinite"></span>
+      <span style="font-size:11px;font-weight:800;letter-spacing:.14em">LIVE</span>
+    </div>
+    <div style="display:flex;align-items:center;padding:0 var(--space-6);border-right:2px solid var(--color-text);gap:var(--space-6)">
+      <div style="display:flex;flex-direction:column">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">{{ count }}</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700)">VIBES</span>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">{{ people }}</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700)">PEOPLE</span>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">{{ teamEnergy }}</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700)">TEAM ENERGY</span>
+      </div>
+    </div>
+  </header>
+
+  <div style="display:flex;align-items:stretch;border-bottom:2px solid var(--color-text);flex:none;min-height:44px">
+    <div style="flex:1;min-width:0;display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-6)">
+      <span style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700);white-space:nowrap">ENERGY METER</span>
+      <div style="display:flex;gap:3px;flex:1;min-width:0;height:20px;overflow:hidden">
+        <sc-for list="{{ meter }}" as="seg" hint-placeholder-count="20">
+          <span style="{{ seg.style }}"></span>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-6);border-left:2px solid var(--color-text);flex:none">
+      <span style="{{ loudest.style }}"></span>
+      <div style="display:flex;flex-direction:column">
+        <span style="font-size:13px;font-weight:800;letter-spacing:-.01em;white-space:nowrap">{{ loudest.name }}</span>
+        <span style="font-size:10px;font-weight:700;letter-spacing:.14em;color:var(--color-neutral-700)">LOUDEST COLOR</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex:1;min-height:0">
+
+    <aside style="width:320px;flex:none;border-right:2px solid var(--color-text);display:flex;flex-direction:column;overflow-y:auto">
+      <div style="padding:var(--space-4) var(--space-6);border-bottom:2px solid var(--color-text)">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:18px;letter-spacing:-.02em">DROP YOUR VIBE</div>
+        <div style="font-size:12px;color:var(--color-neutral-700);margin-top:2px">Colour, face, one line. That's it.</div>
+      </div>
+
+      <div style="padding:var(--space-4) var(--space-6);border-bottom:2px solid var(--color-divider)">
+        <label style="display:block;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--color-neutral-700);margin-bottom:var(--space-2)">NAME</label>
+        <input class="input" value="{{ name }}" onChange="{{ onName }}" placeholder="who are you" style="width:100%;box-sizing:border-box">
+      </div>
+
+      <div style="padding:var(--space-4) var(--space-6);border-bottom:2px solid var(--color-divider)">
+        <label style="display:block;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--color-neutral-700);margin-bottom:var(--space-2)">COLOUR</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2)">
+          <sc-for list="{{ colorOpts }}" as="opt" hint-placeholder-count="8">
+            <button onClick="{{ opt.pick }}" title="{{ opt.name }}" style="{{ opt.style }}"></button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="padding:var(--space-4) var(--space-6);border-bottom:2px solid var(--color-divider)">
+        <label style="display:block;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--color-neutral-700);margin-bottom:var(--space-2)">FACE</label>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-2)">
+          <sc-for list="{{ emojiOpts }}" as="opt" hint-placeholder-count="10">
+            <button onClick="{{ opt.pick }}" style="{{ opt.style }}">{{ opt.char }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="padding:var(--space-4) var(--space-6);border-bottom:2px solid var(--color-divider)">
+        <label style="display:block;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--color-neutral-700);margin-bottom:var(--space-2)">ENERGY</label>
+        <div class="seg" style="display:flex">
+          <sc-for list="{{ energyOpts }}" as="opt" hint-placeholder-count="5">
+            <button onClick="{{ opt.pick }}" style="{{ opt.style }}">{{ opt.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="padding:var(--space-4) var(--space-6);display:flex;flex-direction:column;gap:var(--space-3)">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--color-neutral-700);margin-bottom:var(--space-2)">STATUS</label>
+          <input class="input" value="{{ status }}" onChange="{{ onStatus }}" onKeyDown="{{ onKey }}" placeholder="one line, max vibes" style="width:100%;box-sizing:border-box">
+        </div>
+        <button class="btn btn-primary btn-block" onClick="{{ post }}" style="{{ postStyle }}">POST MY VIBE</button>
+        <div style="font-size:11px;color:var(--color-neutral-600)">Enter posts. Everything below updates live.</div>
+      </div>
+    </aside>
+
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:1;overflow-y:auto;padding:var(--space-4)">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:var(--space-3);align-content:start">
+          <sc-for list="{{ vibes }}" as="v" hint-placeholder-count="9">
+            <article style="{{ v.tileStyle }}">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-2)">
+                <span style="font-size:40px;line-height:1;animation:vc-float 3.4s ease-in-out infinite">{{ v.emoji }}</span>
+                <span style="{{ v.energyChip }}">{{ v.energy }}/5</span>
+              </div>
+              <div style="font-family:var(--font-heading);font-weight:800;font-size:17px;line-height:1.15;letter-spacing:-.01em;text-wrap:pretty">{{ v.status }}</div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-2);margin-top:auto;padding-top:var(--space-3);border-top:2px solid currentColor">
+                <span style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ v.name }}</span>
+                <span style="font-size:11px;font-weight:700;opacity:.8;white-space:nowrap">{{ v.ago }}</span>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="flex:none;border-top:2px solid var(--color-text);background:var(--color-text);color:var(--color-bg);overflow:hidden;height:38px;display:flex;align-items:center">
+        <span style="flex:none;background:var(--color-accent);color:#fff;font-size:10px;font-weight:800;letter-spacing:.16em;padding:0 var(--space-3);align-self:stretch;display:flex;align-items:center">TICKER</span>
+        <div style="display:flex;white-space:nowrap;animation:vc-mar 26s linear infinite">
+          <sc-for list="{{ ticker }}" as="t" hint-placeholder-count="6">
+            <span style="font-size:12px;font-weight:700;padding:0 var(--space-6);letter-spacing:.04em">{{ t.text }}</span>
+          </sc-for>
+          <sc-for list="{{ ticker }}" as="t" hint-placeholder-count="6">
+            <span style="font-size:12px;font-weight:700;padding:0 var(--space-6);letter-spacing:.04em">{{ t.text }}</span>
+          </sc-for>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50">
+    <sc-for list="{{ confetti }}" as="c" hint-placeholder-count="0">
+      <span style="{{ c.style }}"></span>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;simulateLive&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;bigEnergySpans&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Wall&quot;}}">
+const PALETTE = [
+  { hex: "#ec3013", name: "SIREN RED" },
+  { hex: "#ff7a00", name: "HOT ORANGE" },
+  { hex: "#ffd400", name: "HIGHLIGHT" },
+  { hex: "#3fd35b", name: "GO GREEN" },
+  { hex: "#00c2d1", name: "COOL CYAN" },
+  { hex: "#2b4bff", name: "DEEP BLUE" },
+  { hex: "#8b2bff", name: "ULTRA VIOLET" },
+  { hex: "#ff2b8b", name: "LOUD PINK" }
+];
+const EMOJI = ["🔥", "⚡", "🧠", "☕", "🐌", "🎧", "🤝", "😵", "🚀", "🫠"];
+const SEEDS = [
+  { name: "Aylin", emoji: "🚀", status: "Websocket sync is ALIVE", color: "#3fd35b", energy: 5, t: 40 },
+  { name: "Jonas", emoji: "☕", status: "Fourth coffee, second wind", color: "#ff7a00", energy: 4, t: 130 },
+  { name: "Priya", emoji: "🎧", status: "Deep in the particle canvas", color: "#2b4bff", energy: 4, t: 260 },
+  { name: "Milo", emoji: "🐌", status: "Merge conflict purgatory", color: "#ffd400", energy: 2, t: 420 },
+  { name: "Sara", emoji: "🧠", status: "Emoji picker done, on to streaks", color: "#8b2bff", energy: 5, t: 610 },
+  { name: "Otto", emoji: "🫠", status: "CSS grid has defeated me", color: "#00c2d1", energy: 2, t: 880 },
+  { name: "Nadia", emoji: "⚡", status: "Demo script draft one is up", color: "#ff2b8b", energy: 4, t: 1150 },
+  { name: "Kris", emoji: "🔥", status: "Confetti cannon works. Too well.", color: "#ec3013", energy: 5, t: 1480 }
+];
+const BOT_LINES = [
+  ["Aylin", "🚀", "Reconnect logic shipped"],
+  ["Milo", "⚡", "Out of merge hell, back on the wall"],
+  ["Otto", "🎧", "Found the layout bug. It was me."],
+  ["Priya", "🔥", "Particles now react to team energy"],
+  ["Nadia", "🤝", "Judges briefed, we present sixth"],
+  ["Sara", "😵", "Sticker sheet done, brain empty"],
+  ["Jonas", "☕", "Refill run — who's in?"],
+  ["Kris", "🧠", "Snapshot export renders 4K now"]
+];
+
+function ink(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const L = 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255);
+  return L > 0.42 ? "#201e1d" : "#f8f4f4";
+}
+function ago(sec) {
+  if (sec < 45) return "just now";
+  if (sec < 3600) return Math.round(sec / 60) + "m ago";
+  return Math.round(sec / 3600) + "h ago";
+}
+
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    const now = Date.now();
+    this.state = {
+      vibes: SEEDS.map((s, i) => ({ ...s, id: "s" + i, ts: now - s.t * 1000 })),
+      name: "", color: PALETTE[0].hex, emoji: "🔥", energy: 4, status: "",
+      confetti: [], now, botIndex: 0
+    };
+  }
+  componentDidMount() {
+    this.tick = setInterval(() => this.setState({ now: Date.now() }), 5000);
+    this.bot = setInterval(() => {
+      if (this.props.simulateLive === false) return;
+      const i = this.state.botIndex % BOT_LINES.length;
+      const [name, emoji, status] = BOT_LINES[i];
+      this.setState((s) => ({
+        botIndex: s.botIndex + 1,
+        now: Date.now(),
+        vibes: [{
+          id: "b" + Date.now(), name, emoji, status,
+          color: PALETTE[(i * 3 + 2) % PALETTE.length].hex,
+          energy: 2 + (i % 4), ts: Date.now()
+        }, ...s.vibes].slice(0, 40)
+      }));
+    }, 7000);
+  }
+  componentWillUnmount() { clearInterval(this.tick); clearInterval(this.bot); }
+
+  burst(hex) {
+    const pieces = Array.from({ length: 36 }, (_, i) => ({
+      id: Date.now() + "-" + i,
+      hex: i % 3 === 0 ? hex : PALETTE[(i * 5) % PALETTE.length].hex,
+      left: Math.random() * 100, delay: Math.random() * 0.5, dur: 1.5 + Math.random() * 1.1,
+      w: 7 + Math.random() * 9, h: 10 + Math.random() * 14
+    }));
+    this.setState((s) => ({ confetti: [...s.confetti, ...pieces] }));
+    setTimeout(() => {
+      const ids = new Set(pieces.map((p) => p.id));
+      this.setState((s) => ({ confetti: s.confetti.filter((c) => !ids.has(c.id)) }));
+    }, 3000);
+  }
+  post = () => {
+    const status = this.state.status.trim();
+    if (!status) return;
+    const v = {
+      id: "u" + Date.now(), name: this.state.name.trim() || "Anonymous",
+      emoji: this.state.emoji, status, color: this.state.color,
+      energy: this.state.energy, ts: Date.now()
+    };
+    this.setState((s) => ({ vibes: [v, ...s.vibes].slice(0, 40), status: "", now: Date.now() }));
+    this.burst(v.color);
+  };
+
+  renderVals() {
+    const { vibes, now } = this.state;
+    const big = this.props.bigEnergySpans !== false;
+    const swatch = (hex, on) => ({
+      height: 34, border: on ? "2px solid var(--color-text)" : "2px solid transparent",
+      outline: on ? "2px solid var(--color-text)" : "none", outlineOffset: 2,
+      background: hex, cursor: "pointer", padding: 0
+    });
+    const chipBtn = (on) => ({
+      height: 38, fontSize: 20, lineHeight: 1, cursor: "pointer", padding: 0,
+      background: on ? "var(--color-text)" : "var(--color-neutral-100)",
+      border: "2px solid var(--color-text)"
+    });
+    const segBtn = (on) => ({
+      flex: 1, height: 36, cursor: "pointer", fontFamily: "var(--font-heading)", fontWeight: 800,
+      fontSize: 13, border: "2px solid var(--color-text)", borderRight: "none",
+      background: on ? "var(--color-accent)" : "transparent", color: on ? "#fff" : "var(--color-text)"
+    });
+
+    const counts = {};
+    vibes.forEach((v) => { counts[v.color] = (counts[v.color] || 0) + 1; });
+    const loudHex = Object.keys(counts).sort((a, b) => counts[b] - counts[a])[0] || PALETTE[0].hex;
+    const avg = vibes.length ? vibes.reduce((a, v) => a + v.energy, 0) / vibes.length : 0;
+    const lit = Math.round((avg / 5) * 20);
+
+    return {
+      name: this.state.name, status: this.state.status,
+      onName: (e) => this.setState({ name: e.target.value }),
+      onStatus: (e) => this.setState({ status: e.target.value }),
+      onKey: (e) => { if (e.key === "Enter") this.post(); },
+      post: this.post,
+      postStyle: { opacity: this.state.status.trim() ? 1 : 0.45, textAlign: "left" },
+      count: vibes.length,
+      people: new Set(vibes.map((v) => v.name)).size,
+      teamEnergy: avg.toFixed(1),
+      meter: Array.from({ length: 20 }, (_, i) => ({
+        style: {
+          flex: 1, alignSelf: "stretch",
+          background: i < lit ? (i > 15 ? "var(--color-accent)" : "var(--color-text)") : "var(--color-neutral-300)"
+        }
+      })),
+      loudest: {
+        name: (PALETTE.find((p) => p.hex === loudHex) || PALETTE[0]).name,
+        style: { width: 26, height: 26, background: loudHex, border: "2px solid var(--color-text)", display: "block" }
+      },
+      colorOpts: PALETTE.map((p) => ({
+        hex: p.hex, name: p.name, style: swatch(p.hex, p.hex === this.state.color),
+        pick: () => this.setState({ color: p.hex })
+      })),
+      emojiOpts: EMOJI.map((c) => ({
+        char: c, style: chipBtn(c === this.state.emoji), pick: () => this.setState({ emoji: c })
+      })),
+      energyOpts: [1, 2, 3, 4, 5].map((n) => ({
+        label: String(n),
+        style: { ...segBtn(n === this.state.energy), borderRight: n === 5 ? "2px solid var(--color-text)" : "none" },
+        pick: () => this.setState({ energy: n })
+      })),
+      vibes: vibes.map((v) => ({
+        ...v,
+        ago: ago(Math.max(0, (now - v.ts) / 1000)),
+        energyChip: {
+          fontSize: 10, fontWeight: 800, letterSpacing: ".1em", padding: "3px 6px",
+          border: "2px solid currentColor", whiteSpace: "nowrap"
+        },
+        tileStyle: {
+          background: v.color, color: ink(v.color), border: "2px solid var(--color-text)",
+          padding: "var(--space-4)", minHeight: 168, display: "flex", flexDirection: "column",
+          gap: "var(--space-3)", animation: "vc-pop .4s cubic-bezier(.2,.9,.2,1) both",
+          gridColumn: big && v.energy === 5 ? "span 2" : "auto"
+        }
+      })),
+      ticker: vibes.slice(0, 8).map((v) => ({ text: v.emoji + "  " + v.name.toUpperCase() + " — " + v.status })),
+      confetti: this.state.confetti.map((c) => ({
+        style: {
+          position: "absolute", top: "-6vh", left: c.left + "%", width: c.w, height: c.h,
+          background: c.hex, animation: `vc-fall ${c.dur}s linear ${c.delay}s forwards`
+        }
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
