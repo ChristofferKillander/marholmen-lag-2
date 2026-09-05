@@ -33,7 +33,7 @@ A loose guideline for the day, not a strict order — steps can overlap or loop 
 3. **OpenAPI spec** — the design becomes a contract.
 4. **Backend** built directly from the spec.
 5. **Prisma + database** — persistent data.
-6. **The app** — SwiftUI against the design and spec.
+6. **The app** — React Native against the design and spec.
 7. **Deploy to Vercel** — and debugging.
 8. **Wrap-up** — how we collaborated.
 
@@ -44,7 +44,7 @@ A loose guideline for the day, not a strict order — steps can overlap or loop 
 - **Backend:** Vercel serverless functions (TypeScript, `api/*.ts`), built from the OpenAPI spec
 - **ORM:** Prisma
 - **Database:** PostgreSQL
-- **App:** SwiftUI
+- **App:** React Native
 - _More to be added as decisions are made._
 
 ## For AI agents working in this repo
