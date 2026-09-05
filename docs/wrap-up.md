@@ -35,12 +35,35 @@ colour, and hype leaders.
 
 ## What's left
 
-Nothing blocking — design, contract, backend (deployed, real Postgres), and
-the app (deployed, both as the live web app and available via Expo Go for
-local dev) are all done and verified. Nice-to-haves if there's time: mirror
-the compose sheet's chosen emoji on the "drop your vibe" button (currently
-fixed), and consider a TTL on old vibes so the wall doesn't grow unbounded
-over a long event.
+**Needs verification before demoing:** every route on
+`https://marholmen-lag-2.vercel.app` — the app root and `/api/*` alike — is
+currently returning a Vercel bot/DDoS "Security Checkpoint" JS-challenge page
+(HTTP 403) to non-browser requests (`curl`, `WebFetch`), even with a real
+browser user-agent. This is separate from the Deployment Protection/SSO gate
+already turned off. A real human browser may solve this transparently on
+page load, but that hasn't been confirmed — someone needs to open the URL in
+an actual browser, confirm the app loads (not a checkpoint), and post a vibe
+to confirm `/api/*` calls succeed from inside it. If a checkpoint/CAPTCHA
+shows up for real visitors too, check the Vercel dashboard's
+Firewall/Security settings for an attack-challenge toggle beyond Deployment
+Protection.
+
+**Also needs cleanup:** two people wired up the app's web deploy in parallel,
+producing two different Vercel projects. The one that matters is the
+same-origin build folded into the main project above (`marholmen-lag-2`,
+`EXPO_PUBLIC_API_BASE_URL=/api`). A second, separate project
+(`vibe-check-web`, rooted at `app/` via `app/vercel.json`) was set up
+pointing at the full cross-origin backend URL *without* the `/api` prefix —
+its API calls 404, which the browser reports as a CORS failure. It's
+superseded and should be **torn down** (or at minimum not shared/linked
+anywhere) so nobody hits that broken URL by mistake during the demo.
+
+Otherwise nothing blocking — design, contract, backend (deployed, real
+Postgres), and the app (deployed, both as the live web app and available via
+Expo Go for local dev) are all built and were verified pre-deploy. Nice-to-haves
+if there's time: mirror the compose sheet's chosen emoji on the "drop your
+vibe" button (currently fixed), and consider a TTL on old vibes so the wall
+doesn't grow unbounded over a long event.
 
 ## Learnings
 
@@ -60,3 +83,15 @@ over a long event.
   ("must not recursively invoke itself") — that's the Vercel CLI's own
   guard, not a bug; testing had to hit the compiled endpoints directly
   instead. A human running it interactively should be unaffected.
+- **"Deployment Protection" and Vercel's bot/DDoS challenge are two separate
+  gates** — turning off the former (done early on) didn't stop a JS
+  "Security Checkpoint" challenge from appearing on every route in
+  production. Automated checks (`curl`, `WebFetch`) can't tell you whether a
+  real browser sails through it or not — always confirm production URLs in
+  an actual browser before assuming a deploy is demo-ready.
+- **Two people deployed the app's web build in parallel without realizing
+  it** — one folded it into the existing backend project (same-origin,
+  correct), one stood up a separate cross-origin project (wrong base URL,
+  broken). Worth a quick "who's touching deploy/infra right now" check
+  before starting infra work, even in a push-straight-to-`main` workflow —
+  code conflicts merge cleanly, but duplicate cloud resources don't.
