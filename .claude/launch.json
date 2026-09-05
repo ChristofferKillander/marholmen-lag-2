@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "app", "run", "web"],
       "port": 8081
+    },
+    {
+      "name": "vibe-check-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", "public", "-l", "5005"],
+      "port": 5005
     }
   ]
 }

@@ -19,13 +19,23 @@ teammates posting every ~7s so it feels alive.
 
 ## Pointing at the real backend
 
-Once the Vercel/Prisma backend (step 4 of the team's workflow) is deployed:
+The backend is live at `https://marholmen-lag-2.vercel.app` (Vercel +
+Neon Postgres). To develop locally against it instead of the mock:
 
 1. Copy `.env.example` to `.env`.
-2. Set `EXPO_PUBLIC_API_BASE_URL` to its base URL (matching `servers[0].url`
-   in `../api/vibe-check.openapi.yaml`).
+2. Set `EXPO_PUBLIC_API_BASE_URL=https://marholmen-lag-2.vercel.app/api`.
 3. Restart `expo start` — `src/api/index.ts` picks the real HTTP client
    automatically whenever that variable is set, no code changes needed.
+
+## Shared web deploy
+
+The app is also published as the actual web app at that same domain —
+`npm run build:web` (invoked by the root `package.json`'s `build` script on
+every push to `main`) exports the app for web straight into `../public`
+with `EXPO_PUBLIC_API_BASE_URL=/api` baked in, so it's the same shared
+Postgres-backed data everyone posts to, not an isolated mock per visitor.
+`public/` is generated output — it's gitignored, don't hand-edit it or
+commit it. See the root README/`package.json` for the combined build.
 
 ## Structure
 

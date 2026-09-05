@@ -6,7 +6,9 @@ Team 2's project, built during the Marholmen conference.
 
 **Vibe Check** — a live "room energy" board for the conference. People post their vibe (a colour, a face, one line — "how are you, really?") and the board aggregates it live: a team/room energy meter, loudest colour, hype leaders.
 
-Initial design work (Claude Design canvas export, Modernist design system, iOS frame) lives under `design/vibe-check/` — open `Vibe Check v2.dc.html` (the current iteration) in a browser to view it. A first pass at the API is in `api/vibe-check.openapi.yaml`.
+**Live at [marholmen-lag-2.vercel.app](https://marholmen-lag-2.vercel.app)** — the app (React Native, built for web) and the backend (Vercel functions + Neon Postgres) share that one domain: `/` serves the app, `/api/*` serves the backend, everyone hitting it shares the same live data.
+
+Initial design work (Claude Design canvas export, Modernist design system, iOS frame) lives under `design/vibe-check/` — open `Vibe Check v2.dc.html` (the current iteration) in a browser to view it. The API contract is `api/vibe-check.openapi.yaml`; the app is `app/` (see `app/README.md`).
 
 ## Weekend project
 
@@ -65,13 +67,17 @@ Guidelines for any agent picking up work here:
 
 ## Getting Started
 
-Backend lives at the repo root as Vercel serverless functions (`api/*.ts`) built directly from `api/vibe-check.openapi.yaml`, using Prisma against PostgreSQL.
+**Backend** lives at the repo root as Vercel serverless functions (`api/*.ts`) built directly from `api/vibe-check.openapi.yaml`, using Prisma against PostgreSQL (Neon, provisioned via the Vercel integration).
 
 1. `npm install`
-2. Copy `.env.example` to `.env` and point `DATABASE_URL` at a Postgres instance (the comment in that file has a one-line `docker run` for a local one).
+2. Copy `.env.example` to `.env` and point `DATABASE_URL` at a Postgres instance (the comment in that file has a one-line `docker run` for a local one), or pull the real one with `npx vercel env pull`.
 3. `npx prisma db push` — creates the `Vibe` table from `prisma/schema.prisma`.
 4. `npx vercel dev` — serves `GET/POST /api/vibes`, `GET /api/pulse`, `GET /api/options` locally.
 
+`npm run build` at the repo root also builds **the app** for web straight into `public/` (see `app/README.md`) — that's what's actually live at the root of the deployed domain; the repo-root steps above are backend-only.
+
+**App**: see `app/README.md` — `cd app && npm install && npm run web` runs it locally (mock data by default; point it at the real backend per that README).
+
 ## Status
 
-🚧 Backend implemented (`api/`, `prisma/`, `lib/`) and Vercel project connected for auto-deploy on push — React Native app and a real Postgres instance still to do.
+✅ Design, OpenAPI spec, backend (deployed, real Postgres), and the React Native app are all done — see `docs/wrap-up.md`. Live at [marholmen-lag-2.vercel.app](https://marholmen-lag-2.vercel.app).

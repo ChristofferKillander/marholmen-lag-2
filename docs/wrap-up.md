@@ -24,12 +24,23 @@ colour, and hype leaders.
   pushed, and the backend deployed to **production**:
   `https://marholmen-lag-2.vercel.app` (all three endpoints verified live
   against the real database).
+- **App wired into the same deploy** as a real shared web app (matching the
+  original pitch): the root `build` script now also runs the app's
+  `build:web` (`expo export --platform web`) straight into `public/`, with
+  `EXPO_PUBLIC_API_BASE_URL=/api` baked in — so the deployed web app hits the
+  same live Postgres data everyone else does, not an isolated per-visitor
+  mock. `public/` is generated output now (gitignored), replacing the
+  earlier hand-written status page. Local dev (`expo start`) still defaults
+  to the mock for fast iteration.
 
 ## What's left
 
-Point the app at the real backend: set `EXPO_PUBLIC_API_BASE_URL=https://marholmen-lag-2.vercel.app`
-wherever the app is run/built (see `app/.env.example`). Everything else
-(design, contract, backend logic + deploy, app) is done and verified.
+Nothing blocking — design, contract, backend (deployed, real Postgres), and
+the app (deployed, both as the live web app and available via Expo Go for
+local dev) are all done and verified. Nice-to-haves if there's time: mirror
+the compose sheet's chosen emoji on the "drop your vibe" button (currently
+fixed), and consider a TTL on old vibes so the wall doesn't grow unbounded
+over a long event.
 
 ## Learnings
 

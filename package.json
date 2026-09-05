@@ -5,7 +5,7 @@
   "description": "Backend for Vibe Check, built from api/vibe-check.openapi.yaml. Vercel serverless functions + Prisma/PostgreSQL.",
   "scripts": {
     "dev": "vercel dev",
-    "build": "prisma generate",
+    "build": "prisma generate && npm --prefix app ci && npm --prefix app run build:web",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio"
