@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-// The SwiftUI app and any local dev tooling hit this API cross-origin;
+// The React Native app and any local dev tooling hit this API cross-origin;
 // there's no auth/session model in the spec, so a permissive CORS
 // policy is fine for a weekend project.
 export function withCors(req: VercelRequest, res: VercelResponse): boolean {
