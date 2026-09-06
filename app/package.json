@@ -28,7 +28,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "build:web": "cross-env EXPO_PUBLIC_API_BASE_URL=/api expo export --platform web --output-dir ../public --clear"
+    "build:web": "cross-env EXPO_PUBLIC_API_BASE_URL=/api expo export --platform web --output-dir ../public --clear && node scripts/inject-pwa-head.mjs"
   },
   "private": true
 }

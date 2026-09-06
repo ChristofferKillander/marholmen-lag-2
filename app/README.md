@@ -37,6 +37,24 @@ Postgres-backed data everyone posts to, not an isolated mock per visitor.
 `public/` is generated output — it's gitignored, don't hand-edit it or
 commit it. See the root README/`package.json` for the combined build.
 
+## Installing it as an app (PWA)
+
+The deployed site is a real installable PWA — from a phone browser:
+
+- **iOS Safari**: Share icon → **Add to Home Screen**.
+- **Android Chrome**: ⋮ menu → **Add to Home screen** / **Install app**.
+
+It then opens full-screen (no browser chrome) with the Vibe Check icon.
+That's powered by `app/public/manifest.webmanifest` + the icons alongside it
+(`icon-192.png`, `icon-512.png`, `apple-touch-icon.png`) — `app/public/*` is
+copied verbatim into the web build's output root by `expo export`. Expo's
+classic (non-router) web export doesn't link a manifest or add Apple's
+"add to home screen" meta tags on its own, so `scripts/inject-pwa-head.mjs`
+patches them into the exported `index.html` right after export (wired into
+`build:web`; idempotent, safe to re-run). The master icon design lives only
+as the rasterized PNGs in `assets/` and `public/` — regenerate all sizes
+from one source if it ever needs to change.
+
 ## Structure
 
 - `src/api/` — `types.ts` (mirrors the OpenAPI schemas), `client.ts` (real
