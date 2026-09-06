@@ -1,9 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  Animated,
+  Easing,
   KeyboardAvoidingView,
   Modal,
+  PanResponder,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -36,11 +40,49 @@ export function ComposeSheet({ visible, onClose, onSubmit, options }: ComposeShe
   const [status, setStatus] = useState('');
   const [bodyWidth, setBodyWidth] = useState(0);
 
+  // Drag-to-dismiss: translateY follows the finger while dragging the
+  // handle/title area, snaps back if released above the threshold, or
+  // slides the rest of the way off-screen and calls onClose if released
+  // past it (or flicked with enough downward velocity).
+  const translateY = useRef(new Animated.Value(0)).current;
+  const dragStart = useRef(0);
+  const DISMISS_DISTANCE = 120;
+  const DISMISS_VELOCITY = 0.6;
+
   useEffect(() => {
     if (!visible) return;
     setColor((c) => c || colorOpts[0]?.hex || '#c4ff3d');
     setEmoji((e) => e || emojiOpts[0] || '🔥');
-  }, [visible, colorOpts, emojiOpts]);
+    translateY.setValue(0);
+  }, [visible, colorOpts, emojiOpts, translateY]);
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_evt, gesture) => Math.abs(gesture.dy) > 4 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
+      onPanResponderGrant: () => {
+        translateY.stopAnimation((value) => {
+          dragStart.current = value;
+        });
+      },
+      onPanResponderMove: (_evt, gesture) => {
+        translateY.setValue(Math.max(0, dragStart.current + gesture.dy));
+      },
+      onPanResponderRelease: (_evt, gesture) => {
+        const shouldDismiss = gesture.dy > DISMISS_DISTANCE || gesture.vy > DISMISS_VELOCITY;
+        if (shouldDismiss) {
+          Animated.timing(translateY, {
+            toValue: 900,
+            duration: 220,
+            easing: Easing.in(Easing.cubic),
+            useNativeDriver: true,
+          }).start(() => onClose());
+        } else {
+          Animated.spring(translateY, { toValue: 0, friction: 8, tension: 120, useNativeDriver: true }).start();
+        }
+      },
+    }),
+  ).current;
 
   const trimmedStatus = status.trim();
   const canSend = trimmedStatus.length > 0;
@@ -65,13 +107,18 @@ export function ComposeSheet({ visible, onClose, onSubmit, options }: ComposeShe
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <Pressable style={styles.backdrop} onPress={onClose} />
-        <View style={styles.sheet}>
-          <View style={styles.handle} />
-          <Text style={styles.title}>how are you, really?</Text>
+        <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
+          <View {...panResponder.panHandlers}>
+            <View style={styles.handle} />
+            <Text style={styles.title}>how are you, really?</Text>
+          </View>
 
-          <View
+          <ScrollView
             style={styles.body}
+            contentContainerStyle={styles.bodyContent}
             onLayout={(e) => setBodyWidth(e.nativeEvent.layout.width)}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
             <View style={styles.section}>
               <Text style={styles.label}>YOUR COLOUR</Text>
@@ -180,8 +227,8 @@ export function ComposeSheet({ visible, onClose, onSubmit, options }: ComposeShe
                 send it ✦
               </Text>
             </Pressable>
-          </View>
-        </View>
+          </ScrollView>
+        </Animated.View>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -201,12 +248,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sheetBackdrop,
   },
   sheet: {
+    // Capped so, however tall its content gets (keyboard up + all
+    // sections), the sheet itself scrolls internally instead of the
+    // whole page growing past the screen — see `body`/`bodyContent`.
+    maxHeight: '86%',
     backgroundColor: colors.sheetBg,
     borderTopLeftRadius: 34,
     borderTopRightRadius: 34,
     paddingTop: 14,
     paddingHorizontal: 20,
-    paddingBottom: 44,
   },
   handle: {
     width: 44,
@@ -224,7 +274,11 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   body: {
+    flexShrink: 1,
+  },
+  bodyContent: {
     gap: 16,
+    paddingBottom: 44,
   },
   section: {
     gap: 0,
