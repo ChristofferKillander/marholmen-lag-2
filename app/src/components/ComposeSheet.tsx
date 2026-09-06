@@ -345,7 +345,11 @@ const styles = StyleSheet.create({
     color: colors.text,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    fontSize: 14,
+    // iOS Safari auto-zooms the whole page on focus if a text input's
+    // font-size is under 16px — that "zoom" is exactly what looked like
+    // the app growing past the phone's boundaries. 16px is the minimum
+    // that keeps it from triggering.
+    fontSize: 16,
     fontFamily: FONTS.body,
   },
   nameInput: {
