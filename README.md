@@ -6,7 +6,7 @@ Team 2's project, built during the Marholmen conference.
 
 **Vibe Check** — a live "room energy" board for the conference. People post their vibe (a colour, a face, one line — "how are you, really?") and the board aggregates it live: a team/room energy meter, loudest colour, hype leaders.
 
-**Live at [marholmen-lag-2.vercel.app](https://marholmen-lag-2.vercel.app)** — the app (React Native, built for web) and the backend (Vercel functions + Neon Postgres) share that one domain: `/` serves the app, `/api/*` serves the backend, everyone hitting it shares the same live data.
+**Was live at marholmen-lag-2.vercel.app during the conference** — torn down afterward (Vercel projects + Neon Postgres both deleted) since the event is over. See `docs/wrap-up.md` and `docs/demo-manus.md` for what it was and how it worked; the code + `docs/` here still show the full contract-first build (design → OpenAPI spec → backend → app).
 
 Initial design work (Claude Design canvas export, Modernist design system, iOS frame) lives under `design/vibe-check/` — open `Vibe Check v2.dc.html` (the current iteration) in a browser to view it. The API contract is `api/vibe-check.openapi.yaml`; the app is `app/` (see `app/README.md`).
 
@@ -80,4 +80,4 @@ Guidelines for any agent picking up work here:
 
 ## Status
 
-✅ Design, OpenAPI spec, backend (deployed, real Postgres), and the React Native app are all done — see `docs/wrap-up.md`. Live at [marholmen-lag-2.vercel.app](https://marholmen-lag-2.vercel.app).
+🏁 Conference is over. Design, OpenAPI spec, backend, and the React Native app were all built, deployed, and demoed live — see `docs/wrap-up.md` and `docs/demo-manus.md`. Vercel projects and the Neon database have since been deleted (nothing left running); anyone wanting to run it again needs to redo the deploy steps in `Getting Started` above with a fresh Vercel project + Postgres instance.
